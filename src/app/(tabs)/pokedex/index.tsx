@@ -1,6 +1,6 @@
+import { BlurView } from "expo-blur";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { BlurView } from "expo-blur";
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fetchPokemonList, getIdFromUrl, type Pokemon } from "../../../lib/pokeapi";
@@ -41,7 +41,7 @@ export default function PokedexScreen() {
         />
         {query.length > 0 && (
           <TouchableOpacity onPress={() => setQuery("")} style={styles.clearBtn}>
-            <Text style={styles.clearText}>✕</Text>
+            <Text style={styles.clearText}>S</Text>
           </TouchableOpacity>
         )}
       </BlurView>
