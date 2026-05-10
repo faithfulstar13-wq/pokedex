@@ -1,5 +1,5 @@
-import { Button, Text, View } from "react-native";
 import { useRouter } from "expo-router";
+import { Button, Text, View } from "react-native";
 
 export default function PokedexScreen() {
   const router = useRouter();
@@ -10,4 +10,10 @@ export default function PokedexScreen() {
       <Button title="Go to Pokémon #1" onPress={() => router.push("/pokedex/1")} />
     </View>
   );
+}
+
+function getData() {
+  var x = fetch('https://api.example.com/data')
+  console.log(x)
+  return x
 }
