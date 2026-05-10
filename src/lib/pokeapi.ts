@@ -1,8 +1,18 @@
-import type { Pokemon } from "../types/pokemon";
-export type { Pokemon };
+import type { Pokemon, PokemonDetail, PokemonSpecies } from "../types/pokemon";
+export type { Pokemon, PokemonDetail, PokemonSpecies };
 
 export function getIdFromUrl(url: string) {
   return url.split("/").filter(Boolean).pop();
+}
+
+export async function fetchPokemonSpecies(id: string): Promise<PokemonSpecies> {
+  const res = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`);
+  return res.json();
+}
+
+export async function fetchPokemonDetail(id: string): Promise<PokemonDetail> {
+  const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+  return res.json();
 }
 
 export async function fetchPokemonList(): Promise<Pokemon[]> {
