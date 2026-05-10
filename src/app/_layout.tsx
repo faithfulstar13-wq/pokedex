@@ -6,6 +6,7 @@ export default function RootLayout() {
     <FavoritesProvider>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="pokemon/[id]" options={{ presentation: "transparentModal", headerShown: false }} />
       </Stack>
     </FavoritesProvider>
   );

@@ -1,18 +1,42 @@
-import { BlurView } from "expo-blur";
 import { router } from "expo-router";
-import { useState } from "react";
-import { Image, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useCallback, useRef, useState } from "react";
+import { Animated, FlatList, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFavorites } from "../../../lib/favorites";
+import FavoriteListItem from "../../../components/FavoriteListItem";
+
+const SEARCH_HEIGHT = 52;
 
 export default function FavoritesScreen() {
   const { bottom } = useSafeAreaInsets();
   const { favorites, toggleFavorite } = useFavorites();
   const [query, setQuery] = useState("");
 
-  const filtered = query
-    ? favorites.filter((f) => f.name.toLowerCase().includes(query.toLowerCase().trim()))
+  const searchAnim = useRef(new Animated.Value(1)).current;
+  const lastScrollY = useRef(0);
+  const searchVisible = useRef(true);
+  const searchFocused = useRef(false);
+
+  const normalizedQuery = query.toLowerCase().trim().replace(/^#/, "");
+  const filtered = normalizedQuery
+    ? favorites.filter((f) =>
+        f.name.toLowerCase().includes(normalizedQuery) || f.id.includes(normalizedQuery) || f.id.padStart(3, "0").includes(normalizedQuery)
+      )
     : favorites;
+
+  const handleScroll = useCallback((e: any) => {
+    const y = e.nativeEvent.contentOffset.y;
+    const dy = y - lastScrollY.current;
+    lastScrollY.current = y;
+    if (searchFocused.current) return;
+    if (dy > 5 && searchVisible.current && y > SEARCH_HEIGHT) {
+      searchVisible.current = false;
+      Animated.timing(searchAnim, { toValue: 0, duration: 200, useNativeDriver: false }).start();
+    } else if (dy < -5 && !searchVisible.current) {
+      searchVisible.current = true;
+      Animated.timing(searchAnim, { toValue: 1, duration: 200, useNativeDriver: false }).start();
+    }
+  }, [searchAnim]);
 
   if (favorites.length === 0) {
     return (
@@ -25,47 +49,40 @@ export default function FavoritesScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <BlurView intensity={30} tint="light" style={styles.searchWrap}>
+    <View style={styles.root}>
+      <Animated.View style={[styles.searchWrap, { height: searchAnim.interpolate({ inputRange: [0, 1], outputRange: [0, SEARCH_HEIGHT] }) }]}>
         <TextInput
-          style={styles.search}
-          placeholder="Search favorites..."
-          placeholderTextColor="rgba(0, 0, 0, 0.4)"
+          style={styles.searchInput}
+          placeholder="Search by name or number..."
+          placeholderTextColor="rgba(255,255,255,0.6)"
           value={query}
           onChangeText={setQuery}
-          autoCorrect={false}
           autoCapitalize="none"
+          clearButtonMode="while-editing"
+          returnKeyType="search"
+          onFocus={() => { searchFocused.current = true; }}
+          onBlur={() => { searchFocused.current = false; }}
         />
-        {query.length > 0 && (
-          <TouchableOpacity onPress={() => setQuery("")} style={styles.clearBtn}>
-            <Text style={styles.clearText}>✕</Text>
-          </TouchableOpacity>
-        )}
-      </BlurView>
+      </Animated.View>
       <FlatList
         data={filtered}
         keyExtractor={(item) => item.id}
+        keyboardDismissMode="on-drag"
         contentContainerStyle={{ paddingBottom: bottom + 80 }}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.row} onPress={() => router.push(`/pokedex/${item.id}`)}>
-            <Image
-              source={{ uri: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${item.id}.png` }}
-              style={styles.sprite}
-            />
-            <Text style={styles.id}>#{item.id.padStart(3, "0")}</Text>
-            <Text style={styles.name}>{item.name.charAt(0).toUpperCase() + item.name.slice(1)}</Text>
-            <TouchableOpacity
-              onPress={() => toggleFavorite(item)}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Text style={styles.heart}>★</Text>
-            </TouchableOpacity>
-          </TouchableOpacity>
+          <FavoriteListItem
+            id={item.id}
+            name={item.name}
+            onPress={() => router.push(`/pokemon/${item.id}`)}
+            onRemove={() => toggleFavorite(item)}
+          />
         )}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={
           <View style={styles.noResults}>
-            <Text style={styles.noResultsText}>{"No favorites match “" + query + "”"}</Text>
+            <Text style={styles.noResultsText}>{`No favorites match "${query}"`}</Text>
           </View>
         }
       />
@@ -74,34 +91,26 @@ export default function FavoritesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  searchWrap: {
-    margin: 12,
-    borderRadius: 20,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.6)",
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  search: {
-    flex: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    fontSize: 16,
-  },
-  clearBtn: { paddingHorizontal: 12, paddingVertical: 10 },
-  clearText: { fontSize: 14, color: "rgba(0, 0, 0, 0.4)" },
+  root: { flex: 1 },
   noResults: { flex: 1, alignItems: "center", paddingTop: 40 },
   noResultsText: { color: "#888", fontSize: 15 },
   empty: { flex: 1, justifyContent: "center", alignItems: "center", gap: 8 },
   emptyHeart: { fontSize: 64, color: "#E3350D" },
   emptyText: { fontSize: 18, fontWeight: "700", color: "#333" },
   emptySubtext: { fontSize: 14, color: "#888", textAlign: "center", paddingHorizontal: 40 },
-  row: { flexDirection: "row", alignItems: "center", paddingVertical: 12, paddingHorizontal: 16 },
-  sprite: { width: 100, height: 100, marginRight: 8 },
-  id: { width: 50, color: "#222", fontSize: 14, fontWeight: "bold" },
-  name: { fontSize: 16, fontWeight: "500", flex: 1 },
-  heart: { fontSize: 22, color: "#FFD700", paddingHorizontal: 8, textShadowColor: "#FFD700", textShadowRadius: 8, textShadowOffset: { width: 0, height: 0 } },
+  searchWrap: {
+    backgroundColor: "#E3350D",
+    overflow: "hidden",
+    justifyContent: "center",
+    paddingHorizontal: 12,
+  },
+  searchInput: {
+    backgroundColor: "rgba(0,0,0,0.18)",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    height: 36,
+    color: "#fff",
+    fontSize: 15,
+  },
   separator: { height: 1, backgroundColor: "#eee" },
 });
