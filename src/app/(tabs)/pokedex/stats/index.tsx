@@ -88,14 +88,20 @@ export default function PokemonStatsSheet({ id, color, onClose }: Props) {
 
 
   useEffect(() => {
+    let cancelled = false;
+    setError(null);
+    setSpecies(null);
+    setPokemon(null);
     Promise.all([fetchPokemonSpecies(id), fetchPokemonDetail(id)])
       .then(([speciesData, pokemonData]) => {
+        if (cancelled) return;
         setSpecies(speciesData);
         setPokemon(pokemonData);
         animProgress.setValue(0);
         Animated.spring(animProgress, { toValue: 1, friction: 4, tension: 40, useNativeDriver: false }).start();
       })
-      .catch(() => setError("Failed to load data."));
+      .catch(() => { if (!cancelled) setError("Failed to load data."); });
+    return () => { cancelled = true; };
   }, [id]);
 
   const flavorText = species?.flavor_text_entries

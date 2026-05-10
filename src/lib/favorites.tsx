@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 export type FavoriteItem = { id: string; name: string };
 
@@ -19,14 +19,20 @@ const KEY = "@pokedex_favorites";
 
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+  const hydrated = useRef(false);
 
   useEffect(() => {
     AsyncStorage.getItem(KEY).then((val) => {
-      if (val) setFavorites(JSON.parse(val));
+      if (hydrated.current) return;
+      hydrated.current = true;
+      try {
+        if (val) setFavorites(JSON.parse(val));
+      } catch {}
     });
   }, []);
 
   const toggleFavorite = (item: FavoriteItem) => {
+    hydrated.current = true;
     setFavorites((prev) => {
       const exists = prev.some((f) => f.id === item.id);
       const next = exists ? prev.filter((f) => f.id !== item.id) : [item, ...prev];

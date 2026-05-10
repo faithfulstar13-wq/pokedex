@@ -7,11 +7,13 @@ export function getIdFromUrl(url: string) {
 
 export async function fetchPokemonSpecies(id: string): Promise<PokemonSpecies> {
   const res = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
   return res.json();
 }
 
 export async function fetchPokemonDetail(id: string): Promise<PokemonDetail> {
   const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
   return res.json();
 }
 

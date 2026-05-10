@@ -42,9 +42,13 @@ export default function PokemonDetailScreen() {
   const { isFavorite, toggleFavorite } = useFavorites();
 
   useEffect(() => {
+    let cancelled = false;
+    setError(null);
+    setPokemon(null);
     fetchPokemonDetail(id)
-      .then(setPokemon)
-      .catch(() => setError("Failed to load Pokémon details. Check your connection and try again."));
+      .then((data) => { if (!cancelled) setPokemon(data); })
+      .catch(() => { if (!cancelled) setError("Failed to load Pokémon details. Check your connection and try again."); });
+    return () => { cancelled = true; };
   }, [id]);
 
   if (error) {

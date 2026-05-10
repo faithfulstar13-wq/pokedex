@@ -17,9 +17,9 @@ export default function FavoritesScreen() {
   if (favorites.length === 0) {
     return (
       <View style={styles.empty}>
-        <Text style={styles.emptyHeart}>♡</Text>
+        <Text style={styles.emptyHeart}>☆</Text>
         <Text style={styles.emptyText}>No favorites yet</Text>
-        <Text style={styles.emptySubtext}>Tap the heart on any Pokémon to save it here</Text>
+        <Text style={styles.emptySubtext}>Tap the star on any Pokémon to save it here</Text>
       </View>
     );
   }
@@ -65,7 +65,7 @@ export default function FavoritesScreen() {
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={
           <View style={styles.noResults}>
-            <Text style={styles.noResultsText}>No favorites match "{query}"</Text>
+            <Text style={styles.noResultsText}>{"No favorites match “" + query + "”"}</Text>
           </View>
         }
       />
