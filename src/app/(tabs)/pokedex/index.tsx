@@ -11,3 +11,9 @@ export default function PokedexScreen() {
     </View>
   );
 }
+
+function getData() {
+  var x = fetch('https://api.example.com/data')
+  console.log(x)
+  return x
+}
