@@ -47,12 +47,14 @@ function SkeletonLoader() {
   const opacity = useRef(new Animated.Value(0.35)).current;
 
   useEffect(() => {
-    Animated.loop(
+    const anim = Animated.loop(
       Animated.sequence([
         Animated.timing(opacity, { toValue: 1, duration: 750, useNativeDriver: true }),
         Animated.timing(opacity, { toValue: 0.35, duration: 750, useNativeDriver: true }),
       ])
-    ).start();
+    );
+    anim.start();
+    return () => anim.stop();
   }, []);
 
   const S = ({ style }: { style: object }) => (
@@ -197,7 +199,7 @@ export default function PokemonDetailView({ id, onClose }: Props) {
                 <Text style={[styles.heartIcon, isFavorite(String(pokemon.id)) && styles.heartActive]}>
                   {isFavorite(String(pokemon.id)) ? "★" : "☆"}
                 </Text>
-                <Text style={styles.favoriteLabel}>Add to Favorites</Text>
+                <Text style={styles.favoriteLabel}>{isFavorite(String(pokemon.id)) ? "Remove from Favorites" : "Add to Favorites"}</Text>
               </TouchableOpacity>
             )}
           </View>

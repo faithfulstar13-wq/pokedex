@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type Props = {
   id: string;
@@ -16,9 +16,12 @@ export default function FavoriteListItem({ id, name, onPress, onRemove }: Props)
       />
       <Text style={styles.id}>#{id}</Text>
       <Text style={styles.name}>{name.charAt(0).toUpperCase() + name.slice(1)}</Text>
-      <TouchableOpacity onPress={onRemove} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+      <Pressable
+        onPress={(e) => { e.stopPropagation(); onRemove(); }}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
         <Text style={styles.star}>★</Text>
-      </TouchableOpacity>
+      </Pressable>
     </TouchableOpacity>
   );
 }

@@ -92,13 +92,14 @@ export default function PokedexScreen() {
         scrollEventThrottle={16}
         renderItem={({ item }) => {
           const id = getIdFromUrl(item.url);
+          if (!id) return null;
           return (
             <PokedexListItem
-              id={id!}
+              id={id}
               name={item.name}
-              isFavorite={isFavorite(id!)}
+              isFavorite={isFavorite(id)}
               onPress={() => router.push(`/pokedex/${id}`)}
-              onToggleFavorite={() => toggleFavorite({ id: id!, name: item.name })}
+              onToggleFavorite={() => toggleFavorite({ id, name: item.name })}
             />
           );
         }}
