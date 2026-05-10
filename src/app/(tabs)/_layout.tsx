@@ -2,7 +2,7 @@ import { NativeTabs, Icon, Label } from "expo-router/unstable-native-tabs";
 
 export default function TabLayout() {
   return (
-    <NativeTabs>
+    <NativeTabs tabBarActiveTintColor="#E3350D">
       <NativeTabs.Trigger name="pokedex">
         <Icon sf="list.bullet" />
         <Label>Pokédex</Label>
