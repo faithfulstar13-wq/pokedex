@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  Animated, ActivityIndicator, Dimensions, PanResponder,
+  ActivityIndicator,
+  Animated,
+  Dimensions, PanResponder,
   ScrollView, StyleSheet, Text, TouchableOpacity, View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
