@@ -22,13 +22,15 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const hydrated = useRef(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(KEY).then((val) => {
-      if (hydrated.current) return;
-      hydrated.current = true;
-      try {
-        if (val) setFavorites(JSON.parse(val));
-      } catch {}
-    });
+    AsyncStorage.getItem(KEY)
+      .then((val) => {
+        if (hydrated.current) return;
+        hydrated.current = true;
+        try {
+          if (val) setFavorites(JSON.parse(val));
+        } catch {}
+      })
+      .catch(() => { hydrated.current = true; });
   }, []);
 
   const toggleFavorite = (item: FavoriteItem) => {
@@ -36,7 +38,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     setFavorites((prev) => {
       const exists = prev.some((f) => f.id === item.id);
       const next = exists ? prev.filter((f) => f.id !== item.id) : [item, ...prev];
-      AsyncStorage.setItem(KEY, JSON.stringify(next));
+      AsyncStorage.setItem(KEY, JSON.stringify(next)).catch(() => {});
       return next;
     });
   };

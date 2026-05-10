@@ -11,7 +11,7 @@ export default function FavoritesScreen() {
   const [query, setQuery] = useState("");
 
   const filtered = query
-    ? favorites.filter((f) => f.name.includes(query.toLowerCase().trim()))
+    ? favorites.filter((f) => f.name.toLowerCase().includes(query.toLowerCase().trim()))
     : favorites;
 
   if (favorites.length === 0) {
