@@ -167,7 +167,10 @@ export default function PokemonDetailView({ id, onClose }: Props) {
   const name = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
 
   return (
-    <View style={[styles.root, { backgroundColor: bgColor }]}>
+    <View style={styles.root}>
+      {/* Sits behind the transparent scroll view; covers the hero area and top overscroll
+          but stops well above the tab bar so the blur layer picks up white, not bgColor */}
+      <View style={{ position: "absolute", top: 0, left: 0, right: 0, height: 450, backgroundColor: bgColor }} />
 
       <AnimatedScrollView
         style={styles.scroll}
