@@ -1,28 +1,42 @@
+import { BlurView } from "expo-blur";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { BlurView } from "expo-blur";
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fetchPokemonList, getIdFromUrl, type Pokemon } from "../../../lib/pokeapi";
+import { useFavorites } from "../../../lib/favorites";
 
 export default function PokedexScreen() {
   const { bottom } = useSafeAreaInsets();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [pokemon, setPokemon] = useState<Pokemon[]>([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const filtered = query
     ? pokemon.filter((p) => p.name.includes(query.toLowerCase().trim()))
     : pokemon;
 
   useEffect(() => {
-    fetchPokemonList().then(setPokemon).finally(() => setLoading(false));
+    fetchPokemonList()
+      .then(setPokemon)
+      .catch(() => setError("Failed to load Pokémon. Check your connection and try again."))
+      .finally(() => setLoading(false));
   }, []);
 
   if (loading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.errorText}>{error}</Text>
       </View>
     );
   }
@@ -64,6 +78,12 @@ export default function PokedexScreen() {
             <Text style={styles.name}>
               {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
             </Text>
+            <TouchableOpacity
+              onPress={() => toggleFavorite({ id: id!, name: item.name })}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Text style={[styles.heart, isFavorite(id!) && styles.heartActive]}>{isFavorite(id!) ? "★" : "☆"}</Text>
+            </TouchableOpacity>
           </TouchableOpacity>
         );
       }}
@@ -99,6 +119,7 @@ const styles = StyleSheet.create({
     color: "rgba(0, 0, 0, 0.4)",
   },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  errorText: { color: "#E3350D", fontSize: 16, textAlign: "center", paddingHorizontal: 24 },
   row: {
     flexDirection: "row",
     alignItems: "center",
@@ -107,6 +128,8 @@ const styles = StyleSheet.create({
   },
   sprite: { width: 100, height: 100, marginRight: 8 },
   id: { width: 50, color: "#222", fontSize: 14, fontWeight: "bold" },
-  name: { fontSize: 16, fontWeight: "500" },
+  name: { fontSize: 16, fontWeight: "500", flex: 1 },
+  heart: { fontSize: 22, color: "#ccc", paddingHorizontal: 8 },
+  heartActive: { color: "#FFD700", textShadowColor: "#FFD700", textShadowRadius: 8, textShadowOffset: { width: 0, height: 0 } },
   separator: { height: 1, backgroundColor: "#eee" },
 });
