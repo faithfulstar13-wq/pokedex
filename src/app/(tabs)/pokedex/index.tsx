@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   sprite: { width: 100, height: 100, marginRight: 8 },
-  id: { width: 50, color: "#888", fontSize: 14 },
+  id: { width: 50, color: "#222", fontSize: 14, fontWeight: "bold" },
   name: { fontSize: 16, fontWeight: "500" },
   separator: { height: 1, backgroundColor: "#eee" },
 });
